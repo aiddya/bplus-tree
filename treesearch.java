@@ -1,7 +1,9 @@
 import com.iddya.trees.BPlusTree;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,7 +12,8 @@ class treesearch {
 public static void main(String[] args)
 {
     int degree;
-    ArrayList<String> lines = new ArrayList<String>();
+    ArrayList<String> inputLines  = new ArrayList<String>();
+    ArrayList<String> outputLines = new ArrayList<String>();
 
     try {
         String line;
@@ -25,9 +28,10 @@ public static void main(String[] args)
 
         line = reader.readLine();
         while (line != null) {
-            lines.add(line);
+            inputLines.add(line);
             line = reader.readLine();
         }
+        reader.close();
     }
     catch (Exception e) {
         System.out.println("File read error: " + e.getMessage());
@@ -35,7 +39,7 @@ public static void main(String[] args)
     }
 
     try {
-        degree = Integer.parseInt(lines.get(0));
+        degree = Integer.parseInt(inputLines.get(0));
     }
     catch (Exception e) {
         System.out.println("Unexpected input at line 1: " + e.getMessage());
@@ -46,9 +50,9 @@ public static void main(String[] args)
     Pattern insert = Pattern.compile("Insert\\(([0-9\\.\\-]*),(.*)\\)");
     Pattern search = Pattern.compile("Search\\(([0-9\\.\\-]*)\\)");
 
-    for (int i = 1; i < lines.size(); i++) {
-        Matcher im = insert.matcher(lines.get(i));
-        Matcher sm = search.matcher(lines.get(i));
+    for (int i = 1; i < inputLines.size(); i++) {
+        Matcher im = insert.matcher(inputLines.get(i));
+        Matcher sm = search.matcher(inputLines.get(i));
 
         if (im.matches()) {
             double key;
@@ -79,8 +83,23 @@ public static void main(String[] args)
                 continue;
             }
 
-            tree.search(key);
+            outputLines.add(tree.search(key));
         }
+    }
+
+    try {
+        File out              = new File("output_file.txt");
+        BufferedWriter writer = new BufferedWriter(new FileWriter(out));
+
+        for (int i = 0; i < outputLines.size(); i++) {
+            String tempLine = outputLines.get(i);
+            writer.write(tempLine, 0, tempLine.length());
+            writer.newLine();
+            writer.flush();
+        }
+    } catch (Exception e) {
+        System.out.println("File write error: " + e.getMessage());
+        return;
     }
 }
 }
