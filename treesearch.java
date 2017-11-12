@@ -3,6 +3,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class treesearch {
 public static void main(String[] args)
@@ -36,10 +38,49 @@ public static void main(String[] args)
         degree = Integer.parseInt(lines.get(0));
     }
     catch (Exception e) {
-        System.out.println("Unexpected input at line 1: " + lines.get(0));
+        System.out.println("Unexpected input at line 1: " + e.getMessage());
         return;
     }
 
     BPlusTree tree = new BPlusTree(degree);
+    Pattern insert = Pattern.compile("Insert\\(([0-9\\.\\-]*),(.*)\\)");
+    Pattern search = Pattern.compile("Search\\(([0-9\\.\\-]*)\\)");
+
+    for (int i = 1; i < lines.size(); i++) {
+        Matcher im = insert.matcher(lines.get(i));
+        Matcher sm = search.matcher(lines.get(i));
+
+        if (im.matches()) {
+            double key;
+            String value;
+
+            try {
+                key   = Double.parseDouble(im.group(1));
+                value = im.group(2);
+            }
+            catch (Exception e)
+            {
+                System.out.println("Unexpected input at line " + i + ": "
+                                   + e.getMessage());
+                continue;
+            }
+
+            tree.insert(key, value);
+        } else if (sm.matches()) {
+            double key;
+
+            try {
+                key = Double.parseDouble(sm.group(1));
+            }
+            catch (Exception e)
+            {
+                System.out.println("Unexpected input at line " + i + ": "
+                                   + e.getMessage());
+                continue;
+            }
+
+            tree.search(key);
+        }
+    }
 }
 }
