@@ -2,9 +2,13 @@ JCC = javac
 JFLAGS = -g
 PKGDIR = com/iddya/trees
 
-default: BPTNode.class\
+default: KeyValue.class\
+	BPTNode.class\
 	BPlusTree.class\
 	treesearch.class
+
+KeyValue.class: $(PKGDIR)/KeyValue.java
+	$(JCC) $(JFLAGS) $(PKGDIR)/KeyValue.java
 
 BPTNode.class: $(PKGDIR)/BPTNode.java
 	$(JCC) $(JFLAGS) $(PKGDIR)/BPTNode.java

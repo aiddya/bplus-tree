@@ -46,44 +46,36 @@ public static void main(String[] args)
         return;
     }
 
-    BPlusTree tree = new BPlusTree(degree);
-    Pattern insert = Pattern.compile("Insert\\(([0-9\\.\\-]*),(.*)\\)");
-    Pattern search = Pattern.compile("Search\\(([0-9\\.\\-]*)\\)");
+    BPlusTree tree      = new BPlusTree(degree);
+    Pattern insert      = Pattern.compile("Insert\\(([0-9\\.\\-]*),(.*)\\)");
+    Pattern search      = Pattern.compile("Search\\(([0-9\\.\\-]*)\\)");
+    Pattern rangeSearch = Pattern.compile(
+        "Search\\(([0-9\\.\\-]*),([0-9\\.\\-]*)\\)");
 
     for (int i = 1; i < inputLines.size(); i++) {
         Matcher im = insert.matcher(inputLines.get(i));
         Matcher sm = search.matcher(inputLines.get(i));
+        Matcher rm = rangeSearch.matcher(inputLines.get(i));
 
-        if (im.matches()) {
-            double key;
-            String value;
-
-            try {
-                key   = Double.parseDouble(im.group(1));
-                value = im.group(2);
+        try {
+            if (im.matches()) {
+                double key   = Double.parseDouble(im.group(1));
+                String value = im.group(2);
+                tree.insert(key, value);
+            } else if (sm.matches()) {
+                double key = Double.parseDouble(sm.group(1));
+                outputLines.add(tree.search(key));
+            } else if (rm.matches()) {
+                double startKey = Double.parseDouble(rm.group(1));
+                double endKey   = Double.parseDouble(rm.group(2));
+                outputLines.add(tree.searchRange(startKey, endKey));
             }
-            catch (Exception e)
-            {
-                System.out.println("Unexpected input at line " + i + ": "
-                                   + e.getMessage());
-                continue;
-            }
-
-            tree.insert(key, value);
-        } else if (sm.matches()) {
-            double key;
-
-            try {
-                key = Double.parseDouble(sm.group(1));
-            }
-            catch (Exception e)
-            {
-                System.out.println("Unexpected input at line " + i + ": "
-                                   + e.getMessage());
-                continue;
-            }
-
-            outputLines.add(tree.search(key));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Unexpected input at line " + i + ": "
+                               + e.getMessage());
+            continue;
         }
     }
 
