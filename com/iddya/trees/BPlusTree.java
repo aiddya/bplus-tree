@@ -1,37 +1,34 @@
 package com.iddya.trees;
 
 import java.util.ArrayList;
-import java.util.ArrayDeque;
 
 public class BPlusTree {
 private BPTNode rootNode;
 
 public BPlusTree(int degree)
 {
-    rootNode    = new BPTNode(BPTNode.Type.Root, degree);
+    rootNode = new BPTNode(degree);
 }
 
 @Override public String toString()
 {
-    StringBuilder sb       = new StringBuilder();
-    ArrayDeque<ArrayList<BPTNode>> nodes = new ArrayDeque<>();
+    StringBuilder sb         = new StringBuilder();
     ArrayList<BPTNode> array = new ArrayList<>();
     array.add(rootNode);
     sb.append(rootNode.toString());
-    nodes.add(array);
     sb.append(System.lineSeparator());
-    while(nodes.getLast().get(0).getData() == null) {
-        array = new ArrayList<>();
-        for (BPTNode node: nodes.getLast()) {
-            array.addAll(node.getChildren());
-            for(BPTNode node2: node.getChildren()) {
-                sb.append(node2.toString());
+    while(array.get(0).getData() == null) {
+        ArrayList<BPTNode> newArray = new ArrayList<>();
+        for (BPTNode node: array) {
+            for(BPTNode childNode: node.getChildren()) {
+                newArray.add(childNode);
+                sb.append(childNode.toString());
                 sb.append(" | ");
             }
             sb.append(" || ");
         }
         sb.append(System.lineSeparator());
-        nodes.add(array);
+        array = newArray;
     }
 
     return sb.toString();
@@ -88,6 +85,32 @@ public String search(double searchKey)
 
 public String searchRange(double startKey, double endKey)
 {
-    return "Searching from " + startKey + " to " + endKey;
+    StringBuilder sb = new StringBuilder();
+    BPTNode searchNode = rootNode;
+
+    while(searchNode.getData() == null) {
+        ArrayList<Double> keys = searchNode.getKeys();
+        int childIndex = keys.size();
+        while (childIndex > 0) {
+            if (keys.get(childIndex - 1) <= startKey) {
+                break;
+            }
+            childIndex--;
+        }
+        searchNode = searchNode.getChildren().get(childIndex);
+    }
+
+    while(searchNode != null) {
+        for(KeyValue record: searchNode.getData()) {
+            if (record.getKey() >= startKey && record.getKey() <= endKey) {
+             sb.append(record.toString());
+            } else {
+                searchNode = null;
+                break;
+            }
+        }
+        searchNode = searchNode != null ? searchNode.getNext() : null;
+    }
+    return sb.toString();
 }
 }
