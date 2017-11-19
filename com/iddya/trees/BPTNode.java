@@ -5,12 +5,12 @@ import java.util.ArrayList;
 public class BPTNode {
 private int nodeDegree;
 private Type nodeType;
+private ArrayList<BPTNode> children;
+private ArrayList<KeyValue> data;
+private ArrayList<Double> keys;
 private BPTNode parent;
 private BPTNode prev;
 private BPTNode next;
-private ArrayList<KeyValue> data;
-private ArrayList<Double> keys;
-private ArrayList<BPTNode> children;
 
 public enum Type {
     Root,
@@ -18,15 +18,24 @@ public enum Type {
     Leaf
 }
 
+public BPTNode(int degree)
+{
+    this.nodeType   = Type.Root;
+    this.nodeDegree = degree;
+    children = null;
+    data     = new ArrayList<KeyValue>();
+    keys     = null;
+}
+
 public BPTNode(Type nodeType, int degree)
 {
     this.nodeType   = nodeType;
     this.nodeDegree = degree;
-    if (nodeType == Type.Root || nodeType == Type.Leaf) {
+    if (nodeType == Type.Leaf) {
         children = null;
         data     = new ArrayList<KeyValue>();
         keys     = null;
-    } else if (nodeType == Type.Internal) {
+    } else if (nodeType == Type.Root || nodeType == Type.Internal) {
         children = new ArrayList<BPTNode>();
         data     = null;
         keys     = new ArrayList<Double>();
@@ -213,20 +222,28 @@ protected BPTNode insertIntoDataNode(double key, String value)
             }
             this.setNext(newLeaf);
             newLeaf.setPrev(this);
-            retNode = this.getParent().insertInternal(key, this, newLeaf);
+            double splitKey = newLeaf.getData().get(0).getKey();
+            retNode = parent.insertInternal(splitKey, newLeaf);
         }
     }
 
     return retNode;
 }
 
-protected BPTNode insertInternal(double key, BPTNode currChild, BPTNode newChild)
+protected BPTNode insertInternal(double newKey, BPTNode newChild)
 {
     BPTNode retNode = null;
 
-    int currChildIndex = children.indexOf(currChild);
-    children.add(currChildIndex + 1, newChild);
-    keys.add(currChildIndex, key);
+    int insertIndex = keys.size();
+    while (insertIndex > 0) {
+        if (keys.get(insertIndex - 1) <= newKey) {
+            break;
+        }
+        insertIndex--;
+    }
+
+    children.add(insertIndex + 1, newChild);
+    keys.add(insertIndex, newKey);
     newChild.setParent(this);
 
     if (keys.size() == nodeDegree) {
@@ -238,20 +255,22 @@ protected BPTNode insertInternal(double key, BPTNode currChild, BPTNode newChild
             newInt.getChildren().add(child);
             newInt.getKeys().add(keys.remove(splitIndex));
         }
-        newInt.getChildren().add(children.remove(splitIndex));
+        BPTNode child = children.remove(splitIndex);
+        child.setParent(newInt);
+        newInt.getChildren().add(child);
         double splitKey = keys.remove(splitIndex - 1);
         if (this.getParent() == null) {
             // Overfull node is Root, new node should be created
             BPTNode newRoot = new BPTNode(Type.Root, nodeDegree);
-            newRoot.setData(null);
+            newRoot.getKeys().add(splitKey);
             newRoot.getChildren().add(this);
             newRoot.getChildren().add(newInt);
             this.nodeType = Type.Internal;
             this.parent = newRoot;
-            newChild.setParent(newRoot);
+            newInt.setParent(newRoot);
             retNode = newRoot;
         } else {
-            retNode = this.getParent().insertInternal(splitKey, this, newInt);
+            retNode = this.getParent().insertInternal(splitKey, newInt);
         }
 
     }
