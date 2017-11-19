@@ -32,11 +32,15 @@ protected String getSingleValue()
     }
 }
 
-protected String getValues() {
-    String ret = values.get(0);
-    for (int i = 1; i < values.size(); i++)
-        ret += "," + values.get(i);
-    return ret;
+protected String getValues()
+{
+    StringBuilder sb = new StringBuilder();
+    sb.append(values.get(0));
+    for (int i = 1; i < values.size(); i++) {
+        sb.append(", ");
+        sb.append(values.get(i));
+    }
+    return sb.toString();
 }
 
 protected ArrayList<String> getAllValues()
@@ -51,11 +55,18 @@ protected void addValue(String value)
 
 public String toString()
 {
-    String prefix = "(" + key + ";";
-    String suffix = ")";
-    String mid    = values.get(0);
-    for (int i = 1; i < values.size(); i++)
-        mid = mid + "," + values.get(i);
-    return prefix + mid + suffix;
+    StringBuilder sb = new StringBuilder();
+    String prefix    = "(" + key + ",";
+    String suffix    = ")";
+    sb.append(prefix);
+    sb.append(values.get(0));
+    sb.append(suffix);
+    for (int i = 1; i < values.size(); i++) {
+        sb.append(", ");
+        sb.append(prefix);
+        sb.append(values.get(i));
+        sb.append(suffix);
+    }
+    return sb.toString();
 }
 }

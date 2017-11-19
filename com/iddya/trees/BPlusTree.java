@@ -17,10 +17,10 @@ public BPlusTree(int degree)
     array.add(rootNode);
     sb.append(rootNode.toString());
     sb.append(System.lineSeparator());
-    while(array.get(0).getData() == null) {
+    while (array.get(0).getData() == null) {
         ArrayList<BPTNode> newArray = new ArrayList<>();
         for (BPTNode node: array) {
-            for(BPTNode childNode: node.getChildren()) {
+            for (BPTNode childNode: node.getChildren()) {
                 newArray.add(childNode);
                 sb.append(childNode.toString());
                 sb.append(" | ");
@@ -36,11 +36,10 @@ public BPlusTree(int degree)
 
 public void insert(double key, String value)
 {
-    System.out.println("Inserting " + key + "," + value);
     BPTNode insertNode = rootNode;
     while (insertNode.getData() == null) {
         ArrayList<Double> keys = insertNode.getKeys();
-        int childIndex = keys.size();
+        int childIndex         = keys.size();
         while (childIndex > 0) {
             if (keys.get(childIndex - 1) <= key) {
                 break;
@@ -51,11 +50,9 @@ public void insert(double key, String value)
     }
 
     BPTNode newRoot = insertNode.insertIntoDataNode(key, value);
-    if (newRoot != null)
-    {
+    if (newRoot != null) {
         rootNode = newRoot;
     }
-    System.out.println(this.toString());
 }
 
 public String search(double searchKey)
@@ -63,7 +60,7 @@ public String search(double searchKey)
     BPTNode searchNode = rootNode;
     while (searchNode.getData() == null) {
         ArrayList<Double> keys = searchNode.getKeys();
-        int childIndex = keys.size();
+        int childIndex         = keys.size();
         while (childIndex > 0) {
             if (keys.get(childIndex - 1) <= searchKey) {
                 break;
@@ -85,12 +82,12 @@ public String search(double searchKey)
 
 public String searchRange(double startKey, double endKey)
 {
-    StringBuilder sb = new StringBuilder();
+    StringBuilder sb   = new StringBuilder();
     BPTNode searchNode = rootNode;
 
-    while(searchNode.getData() == null) {
+    while (searchNode.getData() == null) {
         ArrayList<Double> keys = searchNode.getKeys();
-        int childIndex = keys.size();
+        int childIndex         = keys.size();
         while (childIndex > 0) {
             if (keys.get(childIndex - 1) <= startKey) {
                 break;
@@ -100,13 +97,13 @@ public String searchRange(double startKey, double endKey)
         searchNode = searchNode.getChildren().get(childIndex);
     }
 
-    while(searchNode != null) {
-        for(KeyValue record: searchNode.getData()) {
-            if (record.getKey() >= startKey && record.getKey() <= endKey) {
-             sb.append(record.toString());
-            } else {
+    while (searchNode != null) {
+        for (KeyValue record: searchNode.getData()) {
+            if (record.getKey() > endKey) {
                 searchNode = null;
                 break;
+            } else if (record.getKey() >= startKey) {
+                sb.append(record.toString());
             }
         }
         searchNode = searchNode != null ? searchNode.getNext() : null;

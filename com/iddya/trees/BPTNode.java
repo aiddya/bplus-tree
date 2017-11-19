@@ -22,9 +22,9 @@ public BPTNode(int degree)
 {
     this.nodeType   = Type.Root;
     this.nodeDegree = degree;
-    children = null;
-    data     = new ArrayList<KeyValue>();
-    keys     = null;
+    children        = null;
+    data            = new ArrayList<KeyValue>();
+    keys            = null;
 }
 
 public BPTNode(Type nodeType, int degree)
@@ -127,8 +127,7 @@ protected Boolean isLeaf()
 public String toString()
 {
     StringBuilder sb = new StringBuilder();
-    if (data != null)
-    {
+    if (data != null) {
         for (KeyValue kv: data) {
             sb.append(kv.toString());
             sb.append(" ");
@@ -159,18 +158,18 @@ protected BPTNode insertIntoDataNode(double key, String value)
     } else {
         // Node is not empty, look for a spot to insert the new key
         /* for (int i = data.size(); i > 0; i--) {
-            KeyValue currRecord = data.get(i - 1);
-            if(currRecord.getKey() < key) {
-                KeyValue newRecord = new KeyValue(key, value);
-                // Insert before the current element
-                data.add(i, newRecord);
-                break;
-            } else if (currRecord.getKey() == key) {
-                // Key exists, insert value into the same key
-                currRecord.addValue(value);
-                break;
-            }
-        }*/
+         *  KeyValue currRecord = data.get(i - 1);
+         *  if(currRecord.getKey() < key) {
+         *      KeyValue newRecord = new KeyValue(key, value);
+         *      // Insert before the current element
+         *      data.add(i, newRecord);
+         *      break;
+         *  } else if (currRecord.getKey() == key) {
+         *      // Key exists, insert value into the same key
+         *      currRecord.addValue(value);
+         *      break;
+         *  }
+         * }*/
 
         // TODO: Implement binary search
         for (int i = 0; i < data.size(); i++) {
@@ -248,7 +247,7 @@ protected BPTNode insertInternal(double newKey, BPTNode newChild)
 
     if (keys.size() == nodeDegree) {
         BPTNode newInt = new BPTNode(Type.Internal, nodeDegree);
-        int splitIndex = (int) Math.ceil(nodeDegree / 2.0);
+        int splitIndex = (int)Math.ceil(nodeDegree / 2.0);
         for (int i = splitIndex; i < nodeDegree; i++) {
             BPTNode child = children.remove(splitIndex);
             child.setParent(newInt);
@@ -266,13 +265,12 @@ protected BPTNode insertInternal(double newKey, BPTNode newChild)
             newRoot.getChildren().add(this);
             newRoot.getChildren().add(newInt);
             this.nodeType = Type.Internal;
-            this.parent = newRoot;
+            this.parent   = newRoot;
             newInt.setParent(newRoot);
             retNode = newRoot;
         } else {
             retNode = this.getParent().insertInternal(splitKey, newInt);
         }
-
     }
     return retNode;
 }
