@@ -1,32 +1,39 @@
 package com.iddya.trees;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.ArrayDeque;
 
 public class BPlusTree {
-private int degree;
 private BPTNode rootNode;
 
 public BPlusTree(int degree)
 {
-    this.degree = degree;
     rootNode    = new BPTNode(BPTNode.Type.Root, degree);
 }
 
 @Override public String toString()
 {
     StringBuilder sb       = new StringBuilder();
-    Queue<BPTNode> toVisit = new LinkedList<BPTNode>();
-    toVisit.add(rootNode);
-    while (toVisit.peek() != null) {
-        BPTNode curr                = toVisit.remove();
-        ArrayList<BPTNode> children = curr.getChildren();
-        sb.append(curr.toString());
-        if (children != null) {
-            toVisit.addAll(children);
+    ArrayDeque<ArrayList<BPTNode>> nodes = new ArrayDeque<>();
+    ArrayList<BPTNode> array = new ArrayList<>();
+    array.add(rootNode);
+    sb.append(rootNode.toString());
+    nodes.add(array);
+    sb.append(System.lineSeparator());
+    while(nodes.getLast().get(0).getData() == null) {
+        array = new ArrayList<>();
+        for (BPTNode node: nodes.getLast()) {
+            array.addAll(node.getChildren());
+            for(BPTNode node2: node.getChildren()) {
+                sb.append(node2.toString());
+                sb.append(" | ");
+            }
+            sb.append(" || ");
         }
+        sb.append(System.lineSeparator());
+        nodes.add(array);
     }
+
     return sb.toString();
 }
 
@@ -46,7 +53,11 @@ public void insert(double key, String value)
         insertNode = insertNode.getChildren().get(childIndex);
     }
 
-    insertNode.insertIntoDataNode(key, value);
+    BPTNode newRoot = insertNode.insertIntoDataNode(key, value);
+    if (newRoot != null)
+    {
+        rootNode = newRoot;
+    }
     System.out.println(this.toString());
 }
 

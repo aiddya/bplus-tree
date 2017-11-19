@@ -133,11 +133,13 @@ public String toString()
     return sb.toString();
 }
 
-protected void insertIntoDataNode(double key, String value)
+protected BPTNode insertIntoDataNode(double key, String value)
 {
+    BPTNode retNode = null;
+
     if (!isRoot() && !isLeaf()) {
         // Shouldn't be here
-        return;
+        return retNode;
     }
 
     // TODO: Clean-up the excessive cases
@@ -147,6 +149,20 @@ protected void insertIntoDataNode(double key, String value)
         data.add(newKey);
     } else {
         // Node is not empty, look for a spot to insert the new key
+        /* for (int i = data.size(); i > 0; i--) {
+            KeyValue currRecord = data.get(i - 1);
+            if(currRecord.getKey() < key) {
+                KeyValue newRecord = new KeyValue(key, value);
+                // Insert before the current element
+                data.add(i, newRecord);
+                break;
+            } else if (currRecord.getKey() == key) {
+                // Key exists, insert value into the same key
+                currRecord.addValue(value);
+                break;
+            }
+        }*/
+
         // TODO: Implement binary search
         for (int i = 0; i < data.size(); i++) {
             KeyValue currKV = data.get(i);
@@ -197,12 +213,48 @@ protected void insertIntoDataNode(double key, String value)
             }
             this.setNext(newLeaf);
             newLeaf.setPrev(this);
-            this.getParent().insertIntoInternalNode(key, newLeaf);
+            retNode = this.getParent().insertInternal(key, this, newLeaf);
         }
     }
+
+    return retNode;
 }
 
-protected void insertIntoInternalNode(double key, BPTNode newChild)
+protected BPTNode insertInternal(double key, BPTNode currChild, BPTNode newChild)
 {
+    BPTNode retNode = null;
+
+    int currChildIndex = children.indexOf(currChild);
+    children.add(currChildIndex + 1, newChild);
+    keys.add(currChildIndex, key);
+    newChild.setParent(this);
+
+    if (keys.size() == nodeDegree) {
+        BPTNode newInt = new BPTNode(Type.Internal, nodeDegree);
+        int splitIndex = (int) Math.ceil(nodeDegree / 2.0);
+        for (int i = splitIndex; i < nodeDegree; i++) {
+            BPTNode child = children.remove(splitIndex);
+            child.setParent(newInt);
+            newInt.getChildren().add(child);
+            newInt.getKeys().add(keys.remove(splitIndex));
+        }
+        newInt.getChildren().add(children.remove(splitIndex));
+        double splitKey = keys.remove(splitIndex - 1);
+        if (this.getParent() == null) {
+            // Overfull node is Root, new node should be created
+            BPTNode newRoot = new BPTNode(Type.Root, nodeDegree);
+            newRoot.setData(null);
+            newRoot.getChildren().add(this);
+            newRoot.getChildren().add(newInt);
+            this.nodeType = Type.Internal;
+            this.parent = newRoot;
+            newChild.setParent(newRoot);
+            retNode = newRoot;
+        } else {
+            retNode = this.getParent().insertInternal(splitKey, this, newInt);
+        }
+
+    }
+    return retNode;
 }
 }
