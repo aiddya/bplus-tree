@@ -80,7 +80,7 @@ protected void setNext(BPTNode nextNode)
     }
 }
 
-private ArrayList<KeyValue> getData()
+protected ArrayList<KeyValue> getData()
 {
     return data;
 }
@@ -118,9 +118,17 @@ protected Boolean isLeaf()
 public String toString()
 {
     StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < data.size(); i++) {
-        sb.append(data.get(i).toString());
-        sb.append(" ");
+    if (data != null)
+    {
+        for (KeyValue kv: data) {
+            sb.append(kv.toString());
+            sb.append(" ");
+        }
+    } else if (keys != null) {
+        for (Double key: keys) {
+            sb.append(key.toString());
+            sb.append(" ");
+        }
     }
     return sb.toString();
 }
@@ -183,14 +191,18 @@ protected void insertIntoDataNode(double key, String value)
             newLeaf.setPrev(newLeaf2);
         } else {
             // Current Node is Leaf, add new node to LinkedList
+            if (this.getNext() != null) {
+                this.getNext().setPrev(newLeaf);
+                newLeaf.setNext(this.getNext());
+            }
             this.setNext(newLeaf);
-            newLeaf.setNext(this);
-            // Merge newLeaf.getData().get(0).getKey() to parent node
+            newLeaf.setPrev(this);
+            this.getParent().insertIntoInternalNode(key, newLeaf);
         }
     }
 }
 
-protected void insertIntoInternalNode(double key)
+protected void insertIntoInternalNode(double key, BPTNode newChild)
 {
 }
 }

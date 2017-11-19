@@ -5,8 +5,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class BPlusTree {
-int degree;
-BPTNode rootNode;
+private int degree;
+private BPTNode rootNode;
 
 public BPlusTree(int degree)
 {
@@ -14,7 +14,7 @@ public BPlusTree(int degree)
     rootNode    = new BPTNode(BPTNode.Type.Root, degree);
 }
 
-public String toString()
+@Override public String toString()
 {
     StringBuilder sb       = new StringBuilder();
     Queue<BPTNode> toVisit = new LinkedList<BPTNode>();
@@ -24,8 +24,7 @@ public String toString()
         ArrayList<BPTNode> children = curr.getChildren();
         sb.append(curr.toString());
         if (children != null) {
-            for (int i = 0; i < children.size(); i++)
-                toVisit.add(children.get(i));
+            toVisit.addAll(children);
         }
     }
     return sb.toString();
@@ -34,13 +33,46 @@ public String toString()
 public void insert(double key, String value)
 {
     System.out.println("Inserting " + key + "," + value);
-    rootNode.insertIntoDataNode(key, value);
+    BPTNode insertNode = rootNode;
+    while (insertNode.getData() == null) {
+        ArrayList<Double> keys = insertNode.getKeys();
+        int childIndex = keys.size();
+        while (childIndex > 0) {
+            if (keys.get(childIndex - 1) <= key) {
+                break;
+            }
+            childIndex--;
+        }
+        insertNode = insertNode.getChildren().get(childIndex);
+    }
+
+    insertNode.insertIntoDataNode(key, value);
     System.out.println(this.toString());
 }
 
-public String search(double key)
+public String search(double searchKey)
 {
-    return "Searching for " + key;
+    BPTNode searchNode = rootNode;
+    while (searchNode.getData() == null) {
+        ArrayList<Double> keys = searchNode.getKeys();
+        int childIndex = keys.size();
+        while (childIndex > 0) {
+            if (keys.get(childIndex - 1) <= searchKey) {
+                break;
+            }
+            childIndex--;
+        }
+        searchNode = searchNode.getChildren().get(childIndex);
+    }
+
+    for (KeyValue kv: searchNode.getData()) {
+        if (kv.getKey() == searchKey) {
+            return kv.getValues();
+        } else if (kv.getKey() > searchKey) {
+            return "Null";
+        }
+    }
+    return "Null";
 }
 
 public String searchRange(double startKey, double endKey)

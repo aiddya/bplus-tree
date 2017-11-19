@@ -32,6 +32,13 @@ protected String getSingleValue()
     }
 }
 
+protected String getValues() {
+    String ret = values.get(0);
+    for (int i = 1; i < values.size(); i++)
+        ret += "," + values.get(i);
+    return ret;
+}
+
 protected ArrayList<String> getAllValues()
 {
     return values;

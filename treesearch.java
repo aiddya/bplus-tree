@@ -75,7 +75,6 @@ public static void main(String[] args)
         {
             System.out.println("Unexpected input at line " + i + ": "
                                + e.getMessage());
-            continue;
         }
     }
 
