@@ -12,8 +12,8 @@ class treesearch {
 public static void main(String[] args)
 {
     int degree;
-    ArrayList<String> inputLines  = new ArrayList<String>();
-    ArrayList<String> outputLines = new ArrayList<String>();
+    ArrayList<String> inputLines  = new ArrayList<>();
+    ArrayList<String> outputLines = new ArrayList<>();
 
     try {
         String line;
@@ -82,15 +82,13 @@ public static void main(String[] args)
         File out              = new File("output_file.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(out));
 
-        for (int i = 0; i < outputLines.size(); i++) {
-            String tempLine = outputLines.get(i);
-            writer.write(tempLine, 0, tempLine.length());
+        for (String line: outputLines) {
+            writer.write(line, 0, line.length());
             writer.newLine();
             writer.flush();
         }
     } catch (Exception e) {
         System.out.println("File write error: " + e.getMessage());
-        return;
     }
 }
 }

@@ -18,46 +18,41 @@ public enum Type {
     Leaf
 }
 
-public BPTNode(int degree)
+BPTNode(int degree)
 {
     this.nodeType   = Type.Root;
     this.nodeDegree = degree;
     children        = null;
-    data            = new ArrayList<KeyValue>();
+    data            = new ArrayList<>();
     keys            = null;
 }
 
-public BPTNode(Type nodeType, int degree)
+private BPTNode(Type nodeType, int degree)
 {
     this.nodeType   = nodeType;
     this.nodeDegree = degree;
     if (nodeType == Type.Leaf) {
         children = null;
-        data     = new ArrayList<KeyValue>();
+        data     = new ArrayList<>();
         keys     = null;
     } else if (nodeType == Type.Root || nodeType == Type.Internal) {
-        children = new ArrayList<BPTNode>();
+        children = new ArrayList<>();
         data     = null;
-        keys     = new ArrayList<Double>();
+        keys     = new ArrayList<>();
     }
 }
 
-public Type getType()
-{
-    return this.nodeType;
-}
-
-protected BPTNode getParent()
+private BPTNode getParent()
 {
     return this.parent;
 }
 
-protected void setParent(BPTNode parentNode)
+private void setParent(BPTNode parentNode)
 {
     this.parent = parentNode;
 }
 
-protected BPTNode getPrev()
+private BPTNode getPrev()
 {
     if (this.nodeType == Type.Leaf) {
         return this.prev;
@@ -66,14 +61,14 @@ protected BPTNode getPrev()
     }
 }
 
-protected void setPrev(BPTNode prevNode)
+private void setPrev(BPTNode prevNode)
 {
     if (this.nodeType == Type.Leaf) {
         this.prev = prevNode;
     }
 }
 
-protected BPTNode getNext()
+BPTNode getNext()
 {
     if (this.nodeType == Type.Leaf) {
         return this.next;
@@ -82,14 +77,14 @@ protected BPTNode getNext()
     }
 }
 
-protected void setNext(BPTNode nextNode)
+private void setNext(BPTNode nextNode)
 {
     if (this.nodeType == Type.Leaf) {
         this.next = nextNode;
     }
 }
 
-protected ArrayList<KeyValue> getData()
+ArrayList<KeyValue> getData()
 {
     return data;
 }
@@ -99,32 +94,32 @@ private void setData(ArrayList<KeyValue> data)
     this.data = data;
 }
 
-protected ArrayList<Double> getKeys()
+ArrayList<Double> getKeys()
 {
     return keys;
 }
 
-protected ArrayList<BPTNode> getChildren()
+ArrayList<BPTNode> getChildren()
 {
     return children;
 }
 
-protected Boolean isRoot()
+private Boolean isRoot()
 {
     return nodeType == Type.Root;
 }
 
-protected Boolean isInternal()
+private Boolean isInternal()
 {
     return nodeType == Type.Internal;
 }
 
-protected Boolean isLeaf()
+private Boolean isLeaf()
 {
     return nodeType == Type.Leaf;
 }
 
-public String toString()
+@Override public String toString()
 {
     StringBuilder sb = new StringBuilder();
     if (data != null) {
@@ -141,7 +136,7 @@ public String toString()
     return sb.toString();
 }
 
-protected BPTNode insertIntoDataNode(double key, String value)
+BPTNode insertIntoDataNode(double key, String value)
 {
     BPTNode retNode = null;
 
@@ -157,28 +152,13 @@ protected BPTNode insertIntoDataNode(double key, String value)
         data.add(newKey);
     } else {
         // Node is not empty, look for a spot to insert the new key
-        /* for (int i = data.size(); i > 0; i--) {
-         *  KeyValue currRecord = data.get(i - 1);
-         *  if(currRecord.getKey() < key) {
-         *      KeyValue newRecord = new KeyValue(key, value);
-         *      // Insert before the current element
-         *      data.add(i, newRecord);
-         *      break;
-         *  } else if (currRecord.getKey() == key) {
-         *      // Key exists, insert value into the same key
-         *      currRecord.addValue(value);
-         *      break;
-         *  }
-         * }*/
-
-        // TODO: Implement binary search
         for (int i = 0; i < data.size(); i++) {
-            KeyValue currKV = data.get(i);
-            if (currKV.getKey() == key) {
+            KeyValue currRecord = data.get(i);
+            if (currRecord.getKey() == key) {
                 // Key exists, insert value into the same key
-                currKV.addValue(value);
+                currRecord.addValue(value);
                 break;
-            } else if (currKV.getKey() > key) {
+            } else if (currRecord.getKey() > key) {
                 KeyValue newKey = new KeyValue(key, value);
                 // Insert before the current element
                 data.add(i, newKey);
@@ -204,10 +184,10 @@ protected BPTNode insertIntoDataNode(double key, String value)
             BPTNode newLeaf2 = new BPTNode(Type.Leaf, nodeDegree);
             newLeaf2.setData(data);
             data     = null;
-            children = new ArrayList<BPTNode>();
+            children = new ArrayList<>();
             children.add(newLeaf2);
             children.add(newLeaf);
-            keys = new ArrayList<Double>();
+            keys = new ArrayList<>();
             keys.add(newLeaf.getData().get(0).getKey());
             newLeaf.setParent(this);
             newLeaf2.setParent(this);
@@ -229,7 +209,7 @@ protected BPTNode insertIntoDataNode(double key, String value)
     return retNode;
 }
 
-protected BPTNode insertInternal(double newKey, BPTNode newChild)
+private BPTNode insertInternal(double newKey, BPTNode newChild)
 {
     BPTNode retNode = null;
 
