@@ -10,7 +10,7 @@ private final double key;
 private final ArrayList<String> values;
 
 /**
- * Initialized a KeyValue class with a key and a value.
+ * Initializes a KeyValue class with a key and a value.
  *
  * @param key: New key
  * @param value: New value
