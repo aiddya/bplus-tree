@@ -2,14 +2,31 @@ package com.iddya.trees;
 
 import java.util.ArrayList;
 
+/**
+ * The main B+ tree class. Handles search and provides public API
+ * for insert and search.
+ */
 public class BPlusTree {
+/**
+ * Holds the root node of the B+ tree
+ */
 private BPTNode rootNode;
 
+/**
+ * Initializes a B+ tree of given degree.
+ *
+ * @param degree: Degree of the new B+ tree
+ */
 public BPlusTree(int degree)
 {
     rootNode = new BPTNode(degree);
 }
 
+/**
+ * Performs a BFS to print the tree. Only used for debugging.
+ *
+ * @return String: A representation of the B+ tree
+ */
 @Override public String toString()
 {
     StringBuilder sb         = new StringBuilder();
@@ -23,9 +40,9 @@ public BPlusTree(int degree)
             for (BPTNode childNode: node.getChildren()) {
                 newArray.add(childNode);
                 sb.append(childNode.toString());
-                sb.append(" | ");
+                sb.append("| ");
             }
-            sb.append(" || ");
+            sb.append("| ");
         }
         sb.append(System.lineSeparator());
         array = newArray;
@@ -34,10 +51,21 @@ public BPlusTree(int degree)
     return sb.toString();
 }
 
+/**
+ * Inserts a new key value pair into the B+ tree. Calls insertData function of
+ * BPTNode class. If the function calls returns a BPTNode object indicating a
+ * root node split, the returned object is used as the new root node.
+ *
+ * @param key: Key to be inserted
+ * @param value: Value associated with the key
+ */
 public void insert(double key, String value)
 {
+    // Start from root and find a node that contains data close to what we're looking for
     BPTNode insertNode = rootNode;
     while (insertNode.getData() == null) {
+        // Start from the end of each node and stop when a key less than what we're
+        // looking for is on the immediate left
         ArrayList<Double> keys = insertNode.getKeys();
         int childIndex         = keys.size();
         while (childIndex > 0) {
@@ -49,7 +77,9 @@ public void insert(double key, String value)
         insertNode = insertNode.getChildren().get(childIndex);
     }
 
-    BPTNode newRoot = insertNode.insertIntoDataNode(key, value);
+    BPTNode newRoot = insertNode.insertData(key, value);
+
+    // If newRoot is not null, it has been replaced. Update rootNode variable.
     if (newRoot != null) {
         rootNode = newRoot;
     }

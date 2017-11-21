@@ -46,13 +46,18 @@ public static void main(String[] args)
         return;
     }
 
-    BPlusTree tree      = new BPlusTree(degree);
+    BPlusTree tree = new BPlusTree(degree);
+
+    // Regex to extract arguments from Insert and Search commands using
+    // capture groups
     Pattern insert      = Pattern.compile("Insert\\(([0-9\\.\\-]*),(.*)\\)");
     Pattern search      = Pattern.compile("Search\\(([0-9\\.\\-]*)\\)");
     Pattern rangeSearch = Pattern.compile(
         "Search\\(([0-9\\.\\-]*),([0-9\\.\\-]*)\\)");
 
     for (int i = 1; i < inputLines.size(); i++) {
+        // Create matchers for each type of expected input and if any one of
+        // them matches, call the corresponding function
         Matcher im = insert.matcher(inputLines.get(i));
         Matcher sm = search.matcher(inputLines.get(i));
         Matcher rm = rangeSearch.matcher(inputLines.get(i));
@@ -85,8 +90,8 @@ public static void main(String[] args)
         for (String line: outputLines) {
             writer.write(line, 0, line.length());
             writer.newLine();
-            writer.flush();
         }
+        writer.flush();
     } catch (Exception e) {
         System.out.println("File write error: " + e.getMessage());
     }
