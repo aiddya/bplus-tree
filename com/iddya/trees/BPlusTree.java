@@ -61,19 +61,11 @@ public BPlusTree(int degree)
  */
 public void insert(double key, String value)
 {
-    // Start from root and find a node that contains data close to what we're looking for
+    // Start from root and find a node that contains data and keys close to the
+    // key being inserted
     BPTNode insertNode = rootNode;
     while (insertNode.getData() == null) {
-        // Start from the end of each node and stop when a key less than what we're
-        // looking for is on the immediate left
-        ArrayList<Double> keys = insertNode.getKeys();
-        int childIndex         = keys.size();
-        while (childIndex > 0) {
-            if (keys.get(childIndex - 1) <= key) {
-                break;
-            }
-            childIndex--;
-        }
+        int childIndex = insertNode.searchInternalNode(key);
         insertNode = insertNode.getChildren().get(childIndex);
     }
 
@@ -85,51 +77,59 @@ public void insert(double key, String value)
     }
 }
 
+/**
+ * Searches for a key in a B+ tree and returns the values associated with the
+ * key.
+ *
+ * @param searchKey: Key being searched for
+ * @return String: Values associated with the key with comma separator.
+ */
 public String search(double searchKey)
 {
+    // Navigate the tree till a node with data and keys close to the one being
+    // searched for is found
     BPTNode searchNode = rootNode;
     while (searchNode.getData() == null) {
-        ArrayList<Double> keys = searchNode.getKeys();
-        int childIndex         = keys.size();
-        while (childIndex > 0) {
-            if (keys.get(childIndex - 1) <= searchKey) {
-                break;
-            }
-            childIndex--;
-        }
+        int childIndex = searchNode.searchInternalNode(searchKey);
         searchNode = searchNode.getChildren().get(childIndex);
     }
 
-    for (KeyValue kv: searchNode.getData()) {
-        if (kv.getKey() == searchKey) {
-            return kv.getValues();
-        } else if (kv.getKey() > searchKey) {
-            return "Null";
-        }
+    int index = searchNode.searchDataNode(searchKey);
+
+    // Since searchDataNode returns first element greater than or equal to
+    // current key, confirm that the key actually exists
+    if (index < searchNode.getData().size() &&
+        searchNode.getData().get(index).getKey() == searchKey) {
+        return searchNode.getData().get(index).getValues();
     }
+
     return "Null";
 }
 
+/**
+ * Searches for keys in a B+ tree that are in between bounds provided in
+ * method arguments and returns them in a String.
+ *
+ * @param startKey: Minimum key being searched for
+ * @param endKey: Maximum key being searched for
+ * @return String: Keys and values with comma separator.
+ */
 public String searchRange(double startKey, double endKey)
 {
     StringBuilder sb   = new StringBuilder();
     BPTNode searchNode = rootNode;
 
+    // Navigate the tree till a node with data is found
     while (searchNode.getData() == null) {
-        ArrayList<Double> keys = searchNode.getKeys();
-        int childIndex         = keys.size();
-        while (childIndex > 0) {
-            if (keys.get(childIndex - 1) <= startKey) {
-                break;
-            }
-            childIndex--;
-        }
+        int childIndex = searchNode.searchInternalNode(startKey);
         searchNode = searchNode.getChildren().get(childIndex);
     }
 
+    // Loop through the leaf nodes until a key greater than the endKey is found
     while (searchNode != null) {
         for (KeyValue record: searchNode.getData()) {
             if (record.getKey() > endKey) {
+                // Set searchNode to null to exit the outer loop
                 searchNode = null;
                 break;
             } else if (record.getKey() >= startKey) {
@@ -137,6 +137,8 @@ public String searchRange(double startKey, double endKey)
                 sb.append(", ");
             }
         }
+
+        // As long as endKey has not been hit, move to next node in linked list
         searchNode = searchNode != null ? searchNode.getNext() : null;
     }
     sb.delete(sb.length() - 2, sb.length());

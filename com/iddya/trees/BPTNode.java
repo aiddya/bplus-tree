@@ -216,26 +216,6 @@ private Boolean isRoot()
 }
 
 /**
- * Checks if the current node is an internal node
- *
- * @return Boolean: True if the current node is an internal node, false otherwise
- */
-private Boolean isInternal()
-{
-    return nodeType == Type.Internal;
-}
-
-/**
- * Checks if the current node is a leaf node
- *
- * @return Boolean: True if the current node is a leaf node, false otherwise
- */
-private Boolean isLeaf()
-{
-    return nodeType == Type.Leaf;
-}
-
-/**
  * Used only for debugging purpose.
  *
  * @return String: Returns all keys / key value pairs seperated by space.
@@ -258,16 +238,103 @@ private Boolean isLeaf()
 }
 
 /**
+ * Searches internal nodes (also root node without data) for keys.
+ * Uses binarySearchInt method to perform binary search.
+ *
+ * @param searchKey: Key to look for
+ * @return int: Returns the index of the first key greater than the search key.
+ * Returns the size of the array if the search key is greater than all elements
+ * in the array.
+ */
+public int searchInternalNode(double searchKey)
+{
+    if (keys != null)
+        return binarySearchInt(searchKey, 0, keys.size());
+    else
+        return -1;
+}
+
+/**
+ * A modified binary search helper method for searchInternalNode.
+ *
+ * @param searchKey: Key to look for in a sub-array
+ * @param first: First key in sub-array
+ * @param last: Last key in sub-array
+ * @return int: Returns the index of the first key greater than the search key.
+ */
+private int binarySearchInt(double searchKey, int first, int last)
+{
+    int retValue = -1;
+
+    if (last - first == 1) {
+        retValue = searchKey < keys.get(first) ? first : last;
+    } else {
+        int mid = (first + last) / 2;
+
+        if (searchKey < keys.get(mid)) {
+            retValue = binarySearchInt(searchKey, first, mid);
+        } else if (searchKey >= keys.get(mid)) {
+            retValue = binarySearchInt(searchKey, mid, last);
+        }
+    }
+    return retValue;
+}
+
+/**
+ * Searches data nodes (also root node with data) for keys.
+ * Uses binarySearchData method to perform binary search.
+ *
+ * @param searchKey: Key to look for
+ * @return int: Returns the index of the first key greater than or equal to the
+ * search key. Returns the size of the array if the search key is greater than
+ * all elements in the array.
+ */
+public int searchDataNode(double searchKey)
+{
+    if (data != null)
+        return binarySearchData(searchKey, 0, data.size());
+    else
+        return -1;
+}
+
+/**
+ * A modified binary search helper method for searchDataNode.
+ *
+ * @param searchKey: Key to look for in a sub-array
+ * @param first: First key in sub-array
+ * @param last: Last key in sub-array
+ * @return int: Returns the index of the first key greater than or equal to the
+ * search key.
+ */
+private int binarySearchData(double searchKey, int first, int last)
+{
+    int retValue = -1;
+
+    if (last - first == 1) {
+        retValue = searchKey <= data.get(first).getKey() ? first : last;
+    } else {
+        int mid = (first + last) / 2;
+
+        if (searchKey < data.get(mid).getKey()) {
+            retValue = binarySearchData(searchKey, first, mid);
+        } else if (searchKey >= data.get(mid).getKey()) {
+            retValue = binarySearchData(searchKey, mid, last);
+        }
+    }
+    return retValue;
+}
+
+/**
  * Insert into leaf node / root node with records:
- * ======================================================
+ * ===============================================
  * Inserts a new key value pair into the current node. When the node is
  * overfull after insertion, it splits the current node into two and calls
- * insertInternal function on the parent node. If insertInternal returns
- * a new root node, it will be returned from this function too. Null is
- * returned otherwise.
+ * insertInternal function on the parent node. If insertInternal returns a new
+ * root node, it will be returned from this function too. Null is returned
+ * otherwise.
  *
- * The base case is when the current node is a root node. Then, two new
- * leaf nodes are created and linked to the root.
+ * The base case is when the current node is a root node. Then, two new leaf
+ * nodes are created and linked to the root.
  *
  * @param key: New key that has to be inserted into the node
  * @param value: New value that accompanies the key
@@ -277,35 +344,26 @@ BPTNode insertData(double key, String value)
 {
     BPTNode retNode = null;
 
-    if (!isRoot() && !isLeaf()) {
+    if (data == null) {
         // Shouldn't be here
         return null;
     }
 
-    // TODO: Clean-up the excessive cases
     if (data.size() == 0) {
         // Node is empty, create and add a KeyValue object
         KeyValue newKey = new KeyValue(key, value);
         data.add(newKey);
     } else {
         // Node is not empty, look for a spot to insert the new key
-        for (int i = 0; i < data.size(); i++) {
-            KeyValue currRecord = data.get(i);
-            if (currRecord.getKey() == key) {
-                // Key exists, insert value into the same key
-                currRecord.addValue(value);
-                break;
-            } else if (currRecord.getKey() > key) {
-                KeyValue newKey = new KeyValue(key, value);
-                // Insert before the current element
-                data.add(i, newKey);
-                break;
-            } else if (i + 1 == data.size()) {
-                // Key is the largest yet. Append at the end.
-                KeyValue newKey = new KeyValue(key, value);
-                data.add(newKey);
-                break;
-            }
+        int insertIndex = searchDataNode(key);
+        if (insertIndex < data.size() &&
+            data.get(insertIndex).getKey() == key) {
+            // Key exists, insert value to the same key
+            data.get(insertIndex).addValue(value);
+        } else {
+            // Create and add a new key
+            KeyValue newKey = new KeyValue(key, value);
+            data.add(insertIndex, newKey);
         }
     }
 
