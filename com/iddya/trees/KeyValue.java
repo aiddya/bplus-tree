@@ -43,7 +43,7 @@ String getValues()
     StringBuilder sb = new StringBuilder();
     sb.append(values.get(0));
     for (int i = 1; i < values.size(); i++) {
-        sb.append(", ");
+        sb.append(",");
         sb.append(values.get(i));
     }
     return sb.toString();
@@ -74,7 +74,7 @@ void addValue(String value)
     sb.append(values.get(0));
     sb.append(suffix);
     for (int i = 1; i < values.size(); i++) {
-        sb.append(", ");
+        sb.append(",");
         sb.append(prefix);
         sb.append(values.get(i));
         sb.append(suffix);

@@ -134,14 +134,18 @@ public String searchRange(double startKey, double endKey)
                 break;
             } else if (record.getKey() >= startKey) {
                 sb.append(record.toString());
-                sb.append(", ");
+                sb.append(",");
             }
         }
 
         // As long as endKey has not been hit, move to next node in linked list
         searchNode = searchNode != null ? searchNode.getNext() : null;
     }
-    sb.delete(sb.length() - 2, sb.length());
-    return sb.toString();
+    if (sb.length() != 0) {
+        sb.delete(sb.length() - 1, sb.length());
+        return sb.toString();
+    } else {
+        return "Null";
+    }
 }
 }
